@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quản lý Cơ cấu tổ chức & Nhân viên — PHENIKAA</title>
+  <link rel="stylesheet" href="styles.css" />
+  
+</head>
+<body>
+  <header class="app-header">
+    <div class="container row-between">
+      <h1>Quản lý Cơ cấu tổ chức & Nhân viên</h1>
+      <nav class="actions row">
+        <div class="btn-group">
+          <button id="tabOrg" class="btn btn-pill active">Cơ cấu tổ chức</button>
+          <button id="tabEmp" class="btn btn-pill">Quản lý nhân viên</button>
+        </div>
+        <button id="btnExport" class="btn">Xuất JSON</button>
+        <label class="btn btn-ghost">
+          <input id="fileImport" type="file" accept=".json" hidden />
+          Nhập JSON
+        </label>
+        <button id="btnReset" class="btn btn-danger">Khôi phục dữ liệu mẫu</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Section: Organization Manager -->
+    <section id="sectionOrg" class="panel">
+      <div class="panel-header row-between">
+        <h2>Cơ cấu tổ chức</h2>
+        <div class="panel-actions">
+          <button id="btnAddChild" class="btn">Thêm cấp con</button>
+          <button id="btnRename" class="btn btn-ghost">Đổi tên</button>
+          <button id="btnDelete" class="btn btn-danger">Xoá</button>
+        </div>
+      </div>
+      <div id="orgBreadcrumb" class="breadcrumb"></div>
+      <div id="orgTree" class="tree" role="tree"></div>
+      <div class="hint">
+        <strong>Cấu trúc:</strong> Đại học → Trường → Khoá → Chuyên ngành → Môn học. Chọn một nút để thao tác; dữ liệu lưu <em>localStorage</em>.
+      </div>
+    </section>
+
+    <!-- Section: Employee Manager -->
+    <section id="sectionEmp" class="panel hidden">
+      <div class="panel-header row-between">
+        <h2>Nhân viên</h2>
+        <div class="panel-actions">
+          <button id="btnToggleEmpForm" class="btn">Thêm nhân viên</button>
+        </div>
+      </div>
+
+      <form id="empForm" class="form hidden" autocomplete="off">
+        <input type="hidden" id="empId" />
+        <div class="row">
+          <label class="field">
+            <span>Họ tên</span>
+            <input id="empName" required placeholder="VD: Nguyễn Văn A" />
+          </label>
+          <label class="field">
+            <span>Chức danh</span>
+            <input id="empTitle" placeholder="VD: Giảng viên" />
+          </label>
+        </div>
+        <div class="row">
+          <label class="field">
+            <span>Bộ phận/Thuộc nút</span>
+            <select id="empOrgSelect"></select>
+          </label>
+          <label class="field">
+            <span>Trạng thái</span>
+            <select id="empStatus">
+              <option value="active">Đang làm</option>
+              <option value="probation">Thử việc</option>
+              <option value="onleave">Nghỉ phép</option>
+              <option value="inactive">Tạm nghỉ</option>
+              <option value="resigned">Nghỉ việc</option>
+            </select>
+          </label>
+        </div>
+        <div class="row">
+          <label class="field">
+            <span>Email</span>
+            <input id="empEmail" type="email" placeholder="ten@phenikaa-uni.edu.vn" />
+          </label>
+          <label class="field">
+            <span>Điện thoại</span>
+            <input id="empPhone" placeholder="0xxxxxxxxx" />
+          </label>
+        </div>
+        <div class="row-end">
+          <button type="submit" class="btn">Lưu</button>
+          <button type="button" id="btnCancelEmp" class="btn btn-ghost">Huỷ</button>
+        </div>
+        <div class="form-note">
+          Gợi ý: Nhân viên sẽ gắn với <strong>nút đang được chọn</strong> trong Cơ cấu tổ chức (ở tab Cơ cấu tổ chức).
+        </div>
+      </form>
+
+      <div class="toolbar row-between">
+        <div class="row gap">
+          <input id="empSearch" class="input" placeholder="Tìm theo tên, email, chức danh…" />
+          <button id="btnClearSearch" class="btn btn-ghost" title="Xoá tìm kiếm">Xoá</button>
+          <select id="empStatusFilter" class="input">
+            <option value="all">Tất cả trạng thái</option>
+            <option value="active">Đang làm</option>
+            <option value="probation">Thử việc</option>
+            <option value="onleave">Nghỉ phép</option>
+            <option value="inactive">Tạm nghỉ</option>
+            <option value="resigned">Nghỉ việc</option>
+          </select>
+        </div>
+        <div class="row gap">
+          <span class="muted">Sắp xếp:</span>
+          <button data-sort="name" class="btn btn-ghost sort">Tên</button>
+          <button data-sort="title" class="btn btn-ghost sort">Chức danh</button>
+          <button data-sort="status" class="btn btn-ghost sort">Trạng thái</button>
+        </div>
+      </div>
+
+      <div id="empTable" class="table"></div>
+    </section>
+  </main>
+
+  <footer class="container muted small">
+    <p>© 2025 — Vanilla JS • Lưu cục bộ (localStorage) • Xuất/Nhập JSON để sao lưu.</p>
+  </footer>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

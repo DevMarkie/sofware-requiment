@@ -1,0 +1,17 @@
+{
+  "name": "org-employee-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node ./src/server.js",
+    "init-db": "node ./src/init-db.js",
+    "seed": "node ./src/seed.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "9.4.3",
+    "express": "4.19.2",
+    "cors": "2.8.5",
+    "morgan": "1.10.0"
+  }
+}

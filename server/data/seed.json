@@ -1,0 +1,13 @@
+{
+  "orgs": [
+    { "id": "u-phenikaa", "type": "university", "name": "ĐẠI HỌC PHENIKAA", "parentId": null },
+    { "id": "s-cntt", "type": "school", "name": "Trường Công nghệ thông tin", "parentId": "u-phenikaa" },
+    { "id": "k17", "type": "cohort", "name": "K17", "parentId": "s-cntt" },
+    { "id": "maj-ktpm", "type": "major", "name": "Kỹ thuật phần mềm", "parentId": "k17" },
+    { "id": "c-hci", "type": "course", "name": "Giao diện người–máy", "parentId": "maj-ktpm" }
+  ],
+  "employees": [
+    { "id": "seed-1", "name": "Nguyễn Văn A", "title": "Giảng viên", "email": "a@phenikaa-uni.edu.vn", "phone": "090000001", "status": "active", "orgId": "maj-ktpm" },
+    { "id": "seed-2", "name": "Trần Thị B", "title": "Thư ký khoa", "email": "b@phenikaa-uni.edu.vn", "phone": "090000002", "status": "probation", "orgId": "s-cntt" }
+  ]
+}
