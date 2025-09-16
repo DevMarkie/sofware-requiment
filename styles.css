@@ -37,6 +37,7 @@ body{
   -webkit-font-smoothing:antialiased;
   -moz-osx-font-smoothing:grayscale;
 }
+[data-theme="dark"] body{ background: var(--bg); }
 .container{max-width:1100px;margin:0 auto;padding:16px}
 .row-between{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .row{display:flex;gap:12px;align-items:stretch}
@@ -45,7 +46,7 @@ body{
 @media (max-width:960px){.grid.two{grid-template-columns:1fr}}
 .hidden{display:none !important}
 
-.app-header{position:sticky;top:0;background:color-mix(in oklab, var(--panel) 85%, transparent);backdrop-filter: blur(8px);border-bottom:1px solid var(--border);z-index:10}
+.app-header{position:sticky;top:0;background:var(--panel);backdrop-filter: blur(8px);border-bottom:1px solid var(--border);z-index:10}
 h1{margin:8px 0;font-size:20px}
 h2{margin:8px 0 0 0;font-size:18px}
 .small{font-size:12px}
@@ -60,18 +61,23 @@ h2{margin:8px 0 0 0;font-size:18px}
 .panel{background:var(--panel);border:1px solid var(--border);border-radius:16px; padding:16px; box-shadow: var(--shadow)}
 .panel-header{margin-bottom:8px}
 .panel-actions .btn{margin-left:6px}
-.breadcrumb{margin:4px 0 10px;color:#334155;font-size:12px}
+.breadcrumb{margin:4px 0 10px;color:var(--muted);font-size:12px}
 .breadcrumb .lvl{display:inline-block;background:#eef2ff;color:#1e293b;border:1px dashed #c7d2fe;border-radius:999px;padding:2px 8px;margin-right:6px}
+[data-theme="dark"] .breadcrumb .lvl{background:#1f2937;color:#e5e7eb;border-color:#334155}
 
-.tree{border:1px solid var(--border);border-radius:12px;padding:8px;background:color-mix(in oklab, var(--panel) 95%, #fff);max-height:380px;overflow:auto}
+.tree{border:1px solid var(--border);border-radius:12px;padding:8px;background:color-mix(in srgb, var(--panel) 95%, #ffffff);max-height:380px;overflow:auto}
+[data-theme="dark"] .tree{background: var(--panel)}
 .tree .node{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:8px;cursor:pointer}
-.tree .node:hover{background:color-mix(in oklab, var(--brand) 9%, transparent)}
-.tree .node.active{background:color-mix(in oklab, var(--brand) 16%, transparent);border:1px solid color-mix(in oklab, var(--brand) 40%, #93c5fd)}
+.tree .node:hover{background:color-mix(in srgb, var(--brand) 10%, transparent)}
+.tree .node.active{background:color-mix(in srgb, var(--brand) 18%, transparent);border:1px solid color-mix(in srgb, var(--brand) 40%, #93c5fd)}
 .tree .children{margin-left:16px;border-left:2px dashed #e5e7eb;padding-left:8px}
+[data-theme="dark"] .tree .children{border-left-color:#334155}
 /* highlight for matched text */
-.tree mark{background:color-mix(in oklab, var(--brand) 30%, #fff6);color:inherit;padding:0 .5px;border-radius:2px}
+.tree mark{background:color-mix(in srgb, var(--brand) 30%, #fff6);color:inherit;padding:0 .5px;border-radius:2px}
+[data-theme="dark"] .tree mark{background:color-mix(in srgb, var(--brand) 35%, #0006)}
 
 .btn{appearance:none;border:1px solid var(--border);background:linear-gradient(#fff,#f8fafc);padding:8px 12px;border-radius:10px;cursor:pointer;transition:background .15s ease,border-color .15s ease,transform .05s ease}
+[data-theme="dark"] .btn{background:linear-gradient(#111827,#0f172a)}
 .btn:hover{border-color:#cbd5e1}
 .btn:active{transform:translateY(1px)}
 .btn-ghost{background:transparent}
@@ -84,13 +90,17 @@ h2{margin:8px 0 0 0;font-size:18px}
 .btn-danger:hover{border-color:#ef4444}
 
 .input, input, select{border:1px solid var(--border);padding:8px 10px;border-radius:10px;background:#fff;outline:none;transition:border-color .15s ease, box-shadow .15s ease}
+[data-theme="dark"] .input,
+[data-theme="dark"] input,
+[data-theme="dark"] select{background:#0b1220;color:var(--ink)}
 .input:focus, input:focus, select:focus{border-color:#bfdbfe;box-shadow:0 0 0 3px var(--ring)}
 
-.form{border:1px solid var(--border);border-radius:12px;padding:12px;margin:8px 0;background:color-mix(in oklab, var(--panel) 95%, #fff)}
+.form{border:1px solid var(--border);border-radius:12px;padding:12px;margin:8px 0;background:color-mix(in srgb, var(--panel) 95%, #ffffff)}
+[data-theme="dark"] .form{background: var(--panel)}
 .form.hidden{display:none}
 .field{display:flex;flex-direction:column;gap:4px;flex:1}
-.field span{font-size:12px;color:#334155}
-.form-note{margin-top:6px;color:#64748b;font-size:12px}
+.field span{color: var(--muted); font-size:12px;}
+.form-note{margin-top:6px;color:var(--muted);font-size:12px}
 
 .toolbar{margin:8px 0 10px}
 .gap{gap:8px}
@@ -98,19 +108,22 @@ h2{margin:8px 0 0 0;font-size:18px}
 .table{border:1px solid var(--border);border-radius:12px;overflow:auto}
 .table table{width:100%;border-collapse:collapse}
 .table thead th{position:sticky;top:0;background:#f1f5f9;border-bottom:1px solid var(--border);padding:10px;text-align:left;font-weight:600}
+[data-theme="dark"] .table thead th{background:#111827}
 .table tbody td{border-top:1px solid var(--border);padding:10px;vertical-align:top}
 .table-foot{padding:8px 10px;color:#64748b;border-top:1px solid var(--border);background:#f8fafc}
+[data-theme="dark"] .table-foot{background:#0f172a;color:var(--muted)}
 .badge{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid #e2e8f0;font-size:12px}
 .badge.green{background:#ecfeff;border-color:#99f6e4;color:#065f46}
-.badge.gray{background:#f1f5f9;border-color:#e2e8f0;color:#334155}
+.badge.gray{background:#f1f5f9;border-color:#e2e8f0;color:var(--ink)}
 .badge.blue{background:#dbeafe;border-color:#93c5fd;color:#1e3a8a}
 .badge.amber{background:#fef3c7;border-color:#facc15;color:#92400e}
 .badge.red{background:#fee2e2;border-color:#ef4444;color:#7f1d1d}
 
 .actions .btn{margin-left:6px}
-.hint{margin-top:10px;color:#475569;font-size:12px}
+.hint{margin-top:10px;color:var(--muted);font-size:12px}
 .action-links{display:flex;gap:6px}
-.action-link{color:#2563eb;cursor:pointer;text-decoration:underline}
+.action-link{color:var(--brand);cursor:pointer;text-decoration:underline}
+[data-theme="dark"] .action-link{color:var(--brand)}
 
 /* Toast */
 #toast{position:fixed;right:12px;bottom:12px;display:flex;flex-direction:column;gap:8px;z-index:99}
@@ -124,5 +137,96 @@ h2{margin:8px 0 0 0;font-size:18px}
 
 /* Scrollbar polish (Chromium/Edge) */
 .tree::-webkit-scrollbar{height:12px;width:10px}
-.tree::-webkit-scrollbar-thumb{background:color-mix(in oklab, var(--ink) 15%, transparent);border-radius:8px;border:2px solid transparent;background-clip:padding-box}
+.tree::-webkit-scrollbar-thumb{background:color-mix(in srgb, var(--ink) 15%, transparent);border-radius:8px;border:2px solid transparent;background-clip:padding-box}
 .tree::-webkit-scrollbar-track{background:transparent}
+
+/* --- Overrides: improve dark mode readability --- */
+/* Text colors use theme variables so dark mode stays readable */
+.breadcrumb{ color: var(--muted); }
+.field span{ color: var(--muted); }
+.form-note{ color: var(--muted); }
+.hint{ color: var(--muted); }
+.action-link{ color: var(--brand); }
+
+/* Ensure active pill buttons keep readable text in dark */
+[data-theme="dark"] .btn.active{ color: var(--ink); }
+
+/* Badges: avoid dark text on dark bg in dark mode */
+.badge.gray{ color: var(--ink); }
+[data-theme="dark"] .badge{ border-color:#334155; color: var(--ink); }
+[data-theme="dark"] .badge.gray{ background:#1f2937; }
+[data-theme="dark"] .badge.blue{ background:#1e3a8a; border-color:#3b82f6; color:#dbeafe; }
+[data-theme="dark"] .badge.green{ background:#064e3b; border-color:#065f46; color:#d1fae5; }
+[data-theme="dark"] .badge.amber{ background:#78350f; border-color:#f59e0b; color:#fde68a; }
+[data-theme="dark"] .badge.red{ background:#7f1d1d; border-color:#ef4444; color:#fecaca; }
+
+/* Tree: subtle branch line in dark */
+[data-theme="dark"] .tree .children{ border-left-color:#334155; }
+
+/* Highlight mix compatibility */
+.tree mark{ background: color-mix(in srgb, var(--brand) 30%, #fff6); }
+
+/* Scrollbar color mix compatibility */
+.tree::-webkit-scrollbar-thumb{ background: color-mix(in srgb, var(--ink) 15%, transparent); }
+
+/* --- UI polish: icons & inputs --- */
+/* Button layout for icons */
+.btn{ display:inline-flex; align-items:center; gap:8px; }
+
+/* Add simple emoji icons for key actions */
+#tabOrg::before{ content:"🏛️"; }
+#tabEmp::before{ content:"👤"; }
+#btnExport::before{ content:"⬇️"; }
+.actions label.btn.btn-ghost::before{ content:"⬆️"; }
+#btnReset::before{ content:"♻️"; }
+/* keep theme icon as-is, but ensure spacing */
+#themeToggle{ display:inline-flex; align-items:center; justify-content:center; width:40px; }
+
+/* Search inputs with icon */
+#orgSearch,#empSearch{
+  padding-left:36px;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2394a3b8'><path d='M10 4a6 6 0 100 12 6 6 0 000-12zm10.71 15.29l-4.4-4.4a8 8 0 10-1.41 1.41l4.4 4.4a1 1 0 001.41-1.41z'/></svg>");
+  background-repeat:no-repeat;
+  background-position:10px 50%;
+  background-size:18px 18px;
+}
+
+/* --- Dark mode button high-contrast overrides (solid colors) --- */
+[data-theme="dark"] .btn{ color: var(--ink); border-color:#334155; }
+[data-theme="dark"] .btn:hover{ border-color:#475569; }
+[data-theme="dark"] .btn-ghost{ color: var(--ink); }
+
+/* Active pill/tab in dark: deep blue bg, bright text */
+[data-theme="dark"] .btn.active{
+  background:#1e3a8a; /* blue-900 */
+  border-color:#3b82f6; /* blue-500 */
+  color:#e5e7eb; /* slate-200 */
+}
+
+/* Primary and danger variants in dark */
+[data-theme="dark"] .btn-primary{
+  background:#1e3a8a;
+  border-color:#3b82f6;
+  color:#e5e7eb;
+}
+[data-theme="dark"] .btn-danger{
+  background:#7f1d1d;
+  border-color:#ef4444;
+  color:#fecaca;
+}
+
+/* Inputs: improve dark border and placeholder */
+[data-theme="dark"] .input,
+[data-theme="dark"] input,
+[data-theme="dark"] select{
+  border-color:#334155;
+}
+[data-theme="dark"] .input:hover,
+[data-theme="dark"] input:hover,
+[data-theme="dark"] select:hover{
+  border-color:#475569;
+}
+::placeholder{ color: var(--muted); }
+input::placeholder, .input::placeholder, textarea::placeholder{ color: var(--muted); }
+
+/* (login overlay styles removed) */

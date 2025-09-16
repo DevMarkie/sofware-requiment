@@ -1,8 +1,10 @@
 import { db } from './db.js';
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const seedPath = path.join(process.cwd(), 'server', 'data', 'seed.json');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const seedPath = path.join(__dirname, '..', 'data', 'seed.json');
 const { orgs, employees } = JSON.parse(fs.readFileSync(seedPath, 'utf-8'));
 
 const insertOrg = db.prepare('INSERT OR REPLACE INTO orgs (id,type,name,parentId) VALUES (?,?,?,?)');

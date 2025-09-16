@@ -3,14 +3,16 @@ import cors from 'cors';
 import morgan from 'morgan';
 import { db } from './db.js';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
-// Static hosting of the frontend (optional)
-const publicDir = path.join(process.cwd());
+// Static hosting of the frontend (serve repo root so index.html is available)
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const publicDir = path.resolve(__dirname, '..', '..');
 app.use('/', express.static(publicDir));
 
 // Orgs APIs
