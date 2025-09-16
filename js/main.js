@@ -1,16 +1,36 @@
 // js/main.js
 // Entry: nạp dữ liệu, gắn handler, điều phối render
 
-import { sampleData, LEVELS, uid } from './data.js';
+import { sampleData, uid } from './data.js';
 import * as store from './storage.js';
 import * as org from './org.js';
 import * as emp from './employees.js';
 import { setActiveSortButtons, toast } from './ui.js';
+import { debounce } from './utils.js';
 
 // ---------------- State ----------------
 /** @type {{orgs:any[], employees:any[], ui:any}} */
-let state = store.load() || { ...sampleData, ui: { selectedOrgId: 'u-phenikaa', empSearch:'', empStatusFilter:'all', sortBy:'name' } };
+let state = store.load() || { ...sampleData, ui: { selectedOrgId: 'u-phenikaa', orgSearch:'', empSearch:'', empStatusFilter:'all', sortBy:'name' } };
 store.save(state);
+
+// --------------- Theme handling ---------------
+const THEME_KEY = 'ui_theme_v1';
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+}
+function detectInitialTheme(){
+  const saved = localStorage.getItem(THEME_KEY);
+  if (saved === 'light' || saved === 'dark') return saved;
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  return prefersDark ? 'dark' : 'light';
+}
+let currentTheme = detectInitialTheme();
+applyTheme(currentTheme);
+document.getElementById('themeToggle')?.addEventListener('click', ()=>{
+  currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  localStorage.setItem(THEME_KEY, currentTheme);
+  applyTheme(currentTheme);
+});
 
 // --------------- Render all ---------------
 function renderAll(){
@@ -23,6 +43,10 @@ function renderAll(){
 function onOrgSelect(){
   renderAll();
 }
+
+// Small refresh helpers
+const refreshOrg = () => { org.renderTree(state, onOrgSelect); org.renderBreadcrumb(state); };
+const refreshEmp = () => { emp.renderEmployees(state); setActiveSortButtons(state.ui.sortBy); };
 
 // --------------- Org actions ---------------
 document.getElementById('btnAddChild').addEventListener('click', ()=>{
@@ -65,7 +89,7 @@ document.getElementById('fileImport').addEventListener('change', async (e)=>{
 document.getElementById('btnReset').addEventListener('click', ()=>{
   if (!confirm('Khôi phục dữ liệu mẫu? Dữ liệu hiện tại sẽ mất.')) return;
   store.clearAll();
-  state = { ...sampleData, ui: { selectedOrgId: 'u-phenikaa', empSearch:'', empStatusFilter:'all', sortBy:'name' } };
+  state = { ...sampleData, ui: { selectedOrgId: 'u-phenikaa', orgSearch:'', empSearch:'', empStatusFilter:'all', sortBy:'name' } };
   store.save(state);
   renderAll();
   toast('Đã khôi phục dữ liệu mẫu', 'ok');
@@ -86,32 +110,28 @@ document.getElementById('btnCancelEmp').addEventListener('click', ()=>{
 });
 
 // --------------- Employee search/filter/sort ---------------
-document.getElementById('empSearch').addEventListener('input', (e)=>{
+document.getElementById('empSearch').addEventListener('input', debounce((e)=>{
   state.ui.empSearch = e.target.value;
   store.save(state);
-  emp.renderEmployees(state);
-  setActiveSortButtons(state.ui.sortBy);
-});
+  refreshEmp();
+}, 150));
 document.getElementById('empStatusFilter').addEventListener('change', (e)=>{
   state.ui.empStatusFilter = e.target.value;
   store.save(state);
-  emp.renderEmployees(state);
-  setActiveSortButtons(state.ui.sortBy);
+  refreshEmp();
 });
 document.getElementById('btnClearSearch').addEventListener('click', ()=>{
   state.ui.empSearch = '';
   document.getElementById('empSearch').value = '';
   store.save(state);
-  emp.renderEmployees(state);
-  setActiveSortButtons(state.ui.sortBy);
+  refreshEmp();
 });
 document.querySelectorAll('.sort').forEach(btn=>{
   btn.addEventListener('click', (e)=>{
     e.preventDefault();
     state.ui.sortBy = btn.dataset.sort;
     store.save(state);
-    emp.renderEmployees(state);
-    setActiveSortButtons(state.ui.sortBy);
+    refreshEmp();
   });
 });
 
@@ -192,3 +212,21 @@ tabOrg?.addEventListener('click', ()=>showTab('org'));
 tabEmp?.addEventListener('click', ()=>showTab('emp'));
 // default: show Org
 showTab('org');
+
+// --------------- Org search ---------------
+const orgSearch = document.getElementById('orgSearch');
+const btnClearOrgSearch = document.getElementById('btnClearOrgSearch');
+if (orgSearch){
+  orgSearch.value = state.ui.orgSearch || '';
+  orgSearch.addEventListener('input', debounce((e)=>{
+    state.ui.orgSearch = e.target.value;
+    store.save(state);
+    refreshOrg();
+  }, 120));
+}
+btnClearOrgSearch?.addEventListener('click', ()=>{
+  if (orgSearch){ orgSearch.value = ''; }
+  state.ui.orgSearch = '';
+  store.save(state);
+  refreshOrg();
+});

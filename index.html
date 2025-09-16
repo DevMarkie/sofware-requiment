@@ -22,6 +22,7 @@
           Nhập JSON
         </label>
         <button id="btnReset" class="btn btn-danger">Khôi phục dữ liệu mẫu</button>
+        <button id="themeToggle" class="btn btn-ghost" title="Đổi giao diện">🌗</button>
       </nav>
     </div>
   </header>
@@ -31,7 +32,9 @@
     <section id="sectionOrg" class="panel">
       <div class="panel-header row-between">
         <h2>Cơ cấu tổ chức</h2>
-        <div class="panel-actions">
+        <div class="panel-actions row">
+          <input id="orgSearch" class="input" placeholder="Tìm khoa/bộ phận/môn..." style="min-width:220px" />
+          <button id="btnClearOrgSearch" class="btn btn-ghost" title="Xóa tìm kiếm">Xóa</button>
           <button id="btnAddChild" class="btn">Thêm cấp con</button>
           <button id="btnRename" class="btn btn-ghost">Đổi tên</button>
           <button id="btnDelete" class="btn btn-danger">Xoá</button>

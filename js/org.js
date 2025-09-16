@@ -3,6 +3,7 @@
 
 import { LEVELS, uid } from './data.js';
 import { save } from './storage.js';
+import { escapeHtml } from './utils.js';
 
 /** Lấy level info theo type */
 const levelOf = (type) => LEVELS.find(l => l.key === type);
@@ -44,11 +45,47 @@ export function renderTree(state, onSelect){
   }
   for (const [k, list] of byParent) list.sort((a,b)=>a.name.localeCompare(b.name,'vi'));
 
+  const q = (ui.orgSearch||'').trim().toLowerCase();
+  const showAll = q.length === 0;
+
+  // precompute name matches
+  const nameMatch = new Map(orgs.map(n => [n.id, n.name.toLowerCase().includes(q)]));
+
+  // compute set of visible nodes: matches OR is ancestor of a match
+  const visible = new Set();
+  if (!showAll){
+    const index = new Map(orgs.map(n => [n.id, n]));
+    for (const n of orgs){
+      if (nameMatch.get(n.id)){
+        // add node and its ancestors
+        let cur = n;
+        while(cur){
+          if (visible.has(cur.id)) break;
+          visible.add(cur.id);
+          cur = cur.parentId ? index.get(cur.parentId) : null;
+        }
+      }
+    }
+  }
+
   function makeNodeEl(node){
     const el = document.createElement('div');
     el.className = 'node' + (ui.selectedOrgId === node.id ? ' active' : '');
     const lvl = levelOf(node.type)?.name || node.type;
-    el.innerHTML = `<span class="badge gray">${lvl}</span><span>${node.name}</span>`;
+    // highlight match
+    let label = node.name;
+    if (!showAll && nameMatch.get(node.id)){
+      const i = node.name.toLowerCase().indexOf(q);
+      if (i >= 0){
+        const a = node.name.slice(0,i);
+        const b = node.name.slice(i, i+q.length);
+        const c = node.name.slice(i+q.length);
+        label = `${escapeHtml(a)}<mark>${escapeHtml(b)}</mark>${escapeHtml(c)}`;
+      }
+    } else {
+      label = escapeHtml(label);
+    }
+  el.innerHTML = `<span class=\"badge gray\">${lvl}</span><span>${label}</span>`;
     el.addEventListener('click', (e)=>{
       e.stopPropagation();
       ui.selectedOrgId = node.id;
@@ -62,6 +99,7 @@ export function renderTree(state, onSelect){
   function build(parentId, parentEl){
     const children = byParent.get(parentId) || [];
     for (const c of children){
+      if (!showAll && !visible.has(c.id)) continue;
       const cEl = makeNodeEl(c);
       parentEl.appendChild(cEl);
       const wrapper = document.createElement('div');
@@ -74,7 +112,17 @@ export function renderTree(state, onSelect){
   const rootWrap = document.createElement('div');
   container.appendChild(rootWrap);
   build('root', rootWrap);
+  // empty state when filtering
+  if (rootWrap.childElementCount === 0){
+    const p = document.createElement('div');
+    p.className = 'muted small';
+    p.style.padding = '8px';
+    p.textContent = 'Không có kết quả phù hợp. Hãy thử từ khóa khác.';
+    container.appendChild(p);
+  }
 }
+
+// escapeHtml moved to utils.js
 
 /** Cập nhật breadcrumb */
 export function renderBreadcrumb(state){

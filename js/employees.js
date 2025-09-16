@@ -4,11 +4,10 @@
 import { save } from './storage.js';
 import { buildPathMap } from './org.js';
 import { updateEmpCount, toast } from './ui.js';
+import { escapeHtml } from './utils.js';
 
-/** Helper tạo cell với HTML an toàn đơn giản */
-const escape = (s='') => String(s).replace(/[&<>"']/g, c => ({
-  '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-}[c]));
+/** HTML escape dùng utils */
+const escape = escapeHtml;
 
 /** Render bảng nhân viên */
 export function renderEmployees(state){

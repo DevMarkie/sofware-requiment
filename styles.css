@@ -1,11 +1,42 @@
+/* Theme variables (light by default) */
 :root{
-  --bg:#f6f8fb; --panel:#ffffff; --ink:#0f172a; --muted:#6b7280;
-  --brand:#2563eb; --brand-2:#1d4ed8; --border:#e5e7eb;
-  --danger:#dc2626; --danger-2:#b91c1c;
+  --bg:#f6f8fb; 
+  --panel:#ffffff; 
+  --ink:#0f172a; 
+  --muted:#6b7280;
+  --brand:#2563eb; 
+  --brand-2:#1d4ed8; 
+  --border:#e5e7eb;
+  --danger:#dc2626; 
+  --danger-2:#b91c1c;
+  --shadow: 0 10px 20px rgba(2,6,23,.06);
+  --ring:#e0f2fe;
+}
+
+/* Dark theme overrides */
+[data-theme="dark"]{
+  --bg:#0b1220;
+  --panel:#0f172a;
+  --ink:#e5e7eb;
+  --muted:#94a3b8;
+  --brand:#60a5fa;
+  --brand-2:#3b82f6;
+  --border:#1f2937;
+  --danger:#f87171;
+  --danger-2:#ef4444;
+  --shadow: 0 10px 24px rgba(0,0,0,.35);
+  --ring:rgba(96,165,250,.25);
 }
 *{box-sizing:border-box}
 html,body{height:100%}
-body{margin:0;font:14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; color:var(--ink); background:linear-gradient(#fff,var(--bg))}
+body{
+  margin:0;
+  font:14px/1.55 Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Noto Sans", "Helvetica Neue";
+  color:var(--ink);
+  background:linear-gradient(#fff,var(--bg));
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
 .container{max-width:1100px;margin:0 auto;padding:16px}
 .row-between{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .row{display:flex;gap:12px;align-items:stretch}
@@ -14,7 +45,7 @@ body{margin:0;font:14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Helveti
 @media (max-width:960px){.grid.two{grid-template-columns:1fr}}
 .hidden{display:none !important}
 
-.app-header{position:sticky;top:0;background:rgba(255,255,255,.8);backdrop-filter: blur(8px);border-bottom:1px solid var(--border);z-index:10}
+.app-header{position:sticky;top:0;background:color-mix(in oklab, var(--panel) 85%, transparent);backdrop-filter: blur(8px);border-bottom:1px solid var(--border);z-index:10}
 h1{margin:8px 0;font-size:20px}
 h2{margin:8px 0 0 0;font-size:18px}
 .small{font-size:12px}
@@ -26,19 +57,21 @@ h2{margin:8px 0 0 0;font-size:18px}
 .app-hero .btn-group{margin-top:10px}
 
 
-.panel{background:var(--panel);border:1px solid var(--border);border-radius:16px; padding:16px; box-shadow: 0 10px 20px rgba(2,6,23,.05)}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:16px; padding:16px; box-shadow: var(--shadow)}
 .panel-header{margin-bottom:8px}
 .panel-actions .btn{margin-left:6px}
 .breadcrumb{margin:4px 0 10px;color:#334155;font-size:12px}
 .breadcrumb .lvl{display:inline-block;background:#eef2ff;color:#1e293b;border:1px dashed #c7d2fe;border-radius:999px;padding:2px 8px;margin-right:6px}
 
-.tree{border:1px solid var(--border);border-radius:12px;padding:8px;background:#fafafa;max-height:380px;overflow:auto}
+.tree{border:1px solid var(--border);border-radius:12px;padding:8px;background:color-mix(in oklab, var(--panel) 95%, #fff);max-height:380px;overflow:auto}
 .tree .node{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:8px;cursor:pointer}
-.tree .node:hover{background:#eef2ff}
-.tree .node.active{background:#dbeafe;border:1px solid #bfdbfe}
+.tree .node:hover{background:color-mix(in oklab, var(--brand) 9%, transparent)}
+.tree .node.active{background:color-mix(in oklab, var(--brand) 16%, transparent);border:1px solid color-mix(in oklab, var(--brand) 40%, #93c5fd)}
 .tree .children{margin-left:16px;border-left:2px dashed #e5e7eb;padding-left:8px}
+/* highlight for matched text */
+.tree mark{background:color-mix(in oklab, var(--brand) 30%, #fff6);color:inherit;padding:0 .5px;border-radius:2px}
 
-.btn{appearance:none;border:1px solid var(--border);background:linear-gradient(#fff,#f8fafc);padding:8px 12px;border-radius:10px;cursor:pointer}
+.btn{appearance:none;border:1px solid var(--border);background:linear-gradient(#fff,#f8fafc);padding:8px 12px;border-radius:10px;cursor:pointer;transition:background .15s ease,border-color .15s ease,transform .05s ease}
 .btn:hover{border-color:#cbd5e1}
 .btn:active{transform:translateY(1px)}
 .btn-ghost{background:transparent}
@@ -50,10 +83,10 @@ h2{margin:8px 0 0 0;font-size:18px}
 .btn-danger{background:linear-gradient(#fee2e2,#fecaca);border-color:#fca5a5;color:#7f1d1d}
 .btn-danger:hover{border-color:#ef4444}
 
-.input, input, select{border:1px solid var(--border);padding:8px 10px;border-radius:10px;background:#fff;outline:none}
-.input:focus, input:focus, select:focus{border-color:#bfdbfe;box-shadow:0 0 0 3px #e0f2fe}
+.input, input, select{border:1px solid var(--border);padding:8px 10px;border-radius:10px;background:#fff;outline:none;transition:border-color .15s ease, box-shadow .15s ease}
+.input:focus, input:focus, select:focus{border-color:#bfdbfe;box-shadow:0 0 0 3px var(--ring)}
 
-.form{border:1px solid var(--border);border-radius:12px;padding:12px;margin:8px 0;background:#fafafa}
+.form{border:1px solid var(--border);border-radius:12px;padding:12px;margin:8px 0;background:color-mix(in oklab, var(--panel) 95%, #fff)}
 .form.hidden{display:none}
 .field{display:flex;flex-direction:column;gap:4px;flex:1}
 .field span{font-size:12px;color:#334155}
@@ -85,3 +118,11 @@ h2{margin:8px 0 0 0;font-size:18px}
 .toast-item.ok{background:#065f46}
 .toast-item.warn{background:#7f1d1d}
 .toast-item.hide{opacity:0;transform:translateY(6px)}
+
+/* Focus styles for keyboard users */
+*:focus-visible{outline:2px solid var(--brand); outline-offset:2px}
+
+/* Scrollbar polish (Chromium/Edge) */
+.tree::-webkit-scrollbar{height:12px;width:10px}
+.tree::-webkit-scrollbar-thumb{background:color-mix(in oklab, var(--ink) 15%, transparent);border-radius:8px;border:2px solid transparent;background-clip:padding-box}
+.tree::-webkit-scrollbar-track{background:transparent}
