@@ -35,6 +35,8 @@ export function buildPathMap(orgs){
 export function renderTree(state, onSelect){
   const { orgs, ui } = state;
   const container = document.getElementById('orgTree');
+  // Lưu scroll hiện tại để tránh nhảy lên đầu khi re-render nhiều lần
+  const prevScroll = container.scrollTop;
   container.innerHTML = '';
 
   const byParent = new Map();
@@ -119,6 +121,23 @@ export function renderTree(state, onSelect){
     p.style.padding = '8px';
     p.textContent = 'Không có kết quả phù hợp. Hãy thử từ khóa khác.';
     container.appendChild(p);
+  }
+
+  // Khôi phục scroll nếu vẫn còn nội dung tương tự
+  if (prevScroll && container.scrollHeight > prevScroll){
+    container.scrollTop = prevScroll;
+  }
+
+  // Tự động đưa node đang chọn vào trong vùng nhìn nếu bị khuất
+  if (ui.selectedOrgId){
+    const activeEl = container.querySelector('.node.active');
+    if (activeEl){
+      const rect = activeEl.getBoundingClientRect();
+      const crect = container.getBoundingClientRect();
+      if (rect.top < crect.top + 10 || rect.bottom > crect.bottom - 10){
+        activeEl.scrollIntoView({block:'center'});
+      }
+    }
   }
 }
 

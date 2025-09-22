@@ -37,6 +37,10 @@ export function importJSON(file) {
         if (!data || !Array.isArray(data.orgs) || !Array.isArray(data.employees)) {
           return reject(new Error('Định dạng JSON không hợp lệ.'));
         }
+        if (data.modules && !Array.isArray(data.modules)) {
+          return reject(new Error('Trường modules không hợp lệ (phải là mảng).'));
+        }
+        if (!data.modules) data.modules = [];
         resolve(data);
       } catch (e) {
         reject(new Error('File không phải JSON hợp lệ.'));
