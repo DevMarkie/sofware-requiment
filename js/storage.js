@@ -1,18 +1,28 @@
 // js/storage.js
 // Lưu trữ & sao lưu dữ liệu qua localStorage + (xuất/nhập) JSON
 
-const KEY = 'org_emp_data_v1';
+// Public key constant to allow external modules (e.g., debug tools) to reference storage key.
+export const STORAGE_KEY = 'org_emp_data_v1';
 
 /** Tải dữ liệu từ localStorage hoặc trả về null nếu chưa có */
 export function load() {
-  const raw = localStorage.getItem(KEY);
+  const raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) return null;
-  try { return JSON.parse(raw); } catch { return null; }
+  try {
+    const data = JSON.parse(raw);
+    // Basic shape validation; if corrupted, ignore to avoid runtime errors.
+    if (data && typeof data === 'object') return data;
+  } catch {}
+  return null;
 }
 
 /** Ghi dữ liệu vào localStorage */
 export function save(data) {
-  localStorage.setItem(KEY, JSON.stringify(data));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch (e){
+    // Fail silently (quota exceeded, etc.) – could hook to UI toast if desired.
+  }
 }
 
 /** Xuất JSON để tải xuống */
@@ -52,5 +62,5 @@ export function importJSON(file) {
 
 /** Xoá key để khôi phục dữ liệu mẫu rồi reload */
 export function clearAll() {
-  localStorage.removeItem(KEY);
+  localStorage.removeItem(STORAGE_KEY);
 }

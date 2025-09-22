@@ -190,24 +190,29 @@ function updateEmpFormOrgPath(){
   const sel = document.getElementById('empOrgSelect');
   if (!sel) return;
   const { orgs, ui } = state;
+  // Precompute path strings only once for efficiency when org count grows.
   const byId = new Map(orgs.map(o=>[o.id,o]));
-  const pathOf = (id)=>{
-    const parts = [];
-    let cur = byId.get(id);
-    while(cur){
-      parts.unshift(cur.name);
-      cur = cur.parentId ? byId.get(cur.parentId) : null;
-    }
-    return parts.join(' / ');
+  const pathCache = new Map();
+  const buildPath = (id)=>{
+    if (pathCache.has(id)) return pathCache.get(id);
+    const node = byId.get(id);
+    if (!node){ pathCache.set(id, ''); return ''; }
+    const parentPath = node.parentId ? buildPath(node.parentId) : '';
+    const full = parentPath ? parentPath + ' / ' + node.name : node.name;
+    pathCache.set(id, full);
+    return full;
   };
-  const entries = orgs.slice().sort((a,b)=>pathOf(a.id).localeCompare(pathOf(b.id),'vi'));
-  sel.innerHTML = '';
+  for (const o of orgs) buildPath(o.id);
+  const entries = orgs.slice().sort((a,b)=>pathCache.get(a.id).localeCompare(pathCache.get(b.id),'vi'));
+  const frag = document.createDocumentFragment();
   for (const o of entries){
     const opt = document.createElement('option');
     opt.value = o.id;
-    opt.textContent = pathOf(o.id);
-    sel.appendChild(opt);
+    opt.textContent = pathCache.get(o.id);
+    frag.appendChild(opt);
   }
+  sel.innerHTML = '';
+  sel.appendChild(frag);
   if (ui.selectedOrgId){
     sel.value = ui.selectedOrgId;
   }

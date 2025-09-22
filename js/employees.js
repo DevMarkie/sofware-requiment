@@ -22,11 +22,15 @@ export function renderEmployees(state){
   };
 
   const statusBadge = (st)=>{
-    if (st==='active') return '<span class="badge green">Đang làm</span>';
-    if (st==='probation') return '<span class="badge blue">Thử việc</span>';
-    if (st==='onleave') return '<span class="badge amber">Nghỉ phép</span>';
-    if (st==='resigned') return '<span class="badge red">Nghỉ việc</span>';
-    return '<span class="badge gray">Tạm nghỉ</span>';
+    const map = {
+      active:   { cls: 'green', label: 'Đang làm' },
+      probation:{ cls: 'blue',  label: 'Thử việc' },
+      onleave:  { cls: 'amber', label: 'Nghỉ phép' },
+      resigned: { cls: 'red',   label: 'Nghỉ việc' },
+      default:  { cls: 'gray',  label: 'Tạm nghỉ' }
+    };
+    const m = map[st] || map.default;
+    return `<span class="badge ${m.cls}">${m.label}</span>`;
   };
 
   const rows = list.map(e => `

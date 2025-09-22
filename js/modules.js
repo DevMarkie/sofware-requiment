@@ -25,7 +25,10 @@ export async function renderModules(state){
   ensureModulesArray(state);
   const tableWrap = document.getElementById('moduleTable');
   if (!tableWrap) return;
-  // attempt to sync from backend if a course selected (to keep local copy up to date)
+  // Attempt a lightweight sync with backend:
+  // - If a specific course selected: replace only that course's modules (merging others untouched)
+  // - If no course selected: replace entire list (acts like a full refresh)
+  // Silent failure = offline / server not running; local data stays as last known.
   try {
     const currentCourseId = state.ui.selectedOrgType === 'course' ? state.ui.selectedOrgId : undefined;
     const remote = await api.listModules(currentCourseId);
@@ -40,7 +43,7 @@ export async function renderModules(state){
       save(state);
     }
   } catch (err){
-    // silent: offline fallback
+    // Silent offline/network fallback (optional debug):
     // console.warn('Sync modules failed', err);
   }
   const list = filterModules(state);
