@@ -31,11 +31,24 @@ app.put('/api/orgs/:id', (req,res)=>{
     .run(name ?? null, type ?? null, parentId ?? null, req.params.id);
   res.json({ ok:true });
 });
+// Delete org (with cascade for modules if course) - unified implementation
 app.delete('/api/orgs/:id', (req,res)=>{
-  const id = req.params.id;
-  db.prepare('DELETE FROM orgs WHERE id = ? OR parentId = ?').run(id, id);
-  db.prepare('UPDATE employees SET orgId = NULL WHERE orgId = ?').run(id);
-  res.json({ ok:true });
+  try {
+    const id = req.params.id;
+    const target = db.prepare('SELECT * FROM orgs WHERE id = ?').get(id);
+    const directChildren = db.prepare('SELECT id,type FROM orgs WHERE parentId = ?').all(id);
+    db.prepare('DELETE FROM orgs WHERE id = ? OR parentId = ?').run(id, id);
+    db.prepare('UPDATE employees SET orgId = NULL WHERE orgId = ?').run(id);
+    const courseIds = [target, ...directChildren].filter(x=>x && x.type==='course').map(x=>x.id);
+    if (courseIds.length){
+      const placeholder = courseIds.map(()=>'?').join(',');
+      db.prepare(`DELETE FROM modules WHERE courseId IN (${placeholder})`).run(...courseIds);
+    }
+    res.json({ ok:true, deletedCourses: courseIds });
+  } catch (err){
+    console.error('DELETE /api/orgs/:id error', err);
+    res.status(500).json({ ok:false, error: 'internal_error' });
+  }
 });
 
 // Employees APIs
@@ -59,6 +72,63 @@ app.delete('/api/employees/:id', (req,res)=>{
   db.prepare('DELETE FROM employees WHERE id = ?').run(req.params.id);
   res.json({ ok:true });
 });
+
+// Modules (Học phần) APIs
+app.get('/api/modules', (req,res)=>{
+  const { courseId } = req.query;
+  let rows;
+  if (courseId){
+    rows = db.prepare('SELECT * FROM modules WHERE courseId = ?').all(courseId);
+  } else {
+    rows = db.prepare('SELECT * FROM modules').all();
+  }
+  res.json(rows);
+});
+app.post('/api/modules', (req,res)=>{
+  try {
+    let { id, code, name, credits, courseId } = req.body;
+    if (!name || !courseId){
+      return res.status(400).json({ ok:false, error: 'name & courseId required' });
+    }
+    // Validate courseId exists and type=course
+    const course = db.prepare('SELECT id FROM orgs WHERE id = ? AND type = ?').get(courseId, 'course');
+    if (!course){
+      return res.status(400).json({ ok:false, error: 'courseId invalid (not found or not type=course)' });
+    }
+    if (!id){
+      // generate simple random id
+      id = 'm-' + Math.random().toString(36).slice(2,10);
+    }
+    db.prepare('INSERT INTO modules (id,code,name,credits,courseId) VALUES (?,?,?,?,?)')
+      .run(id, code ?? null, name, Number.isFinite(+credits) ? +credits : 0, courseId);
+    res.status(201).json({ ok:true, id });
+  } catch (err){
+    console.error('POST /api/modules error', err);
+    res.status(500).json({ ok:false, error: 'internal_error' });
+  }
+});
+app.put('/api/modules/:id', (req,res)=>{
+  try {
+    const { code, name, credits } = req.body;
+    db.prepare('UPDATE modules SET code=COALESCE(?,code), name=COALESCE(?,name), credits=COALESCE(?,credits) WHERE id=?')
+      .run(code ?? null, name ?? null, (credits===undefined? null : (Number.isFinite(+credits)? +credits : 0)), req.params.id);
+    res.json({ ok:true });
+  } catch (err){
+    console.error('PUT /api/modules/:id error', err);
+    res.status(500).json({ ok:false, error: 'internal_error' });
+  }
+});
+app.delete('/api/modules/:id', (req,res)=>{
+  try {
+    db.prepare('DELETE FROM modules WHERE id = ?').run(req.params.id);
+    res.json({ ok:true });
+  } catch (err){
+    console.error('DELETE /api/modules/:id error', err);
+    res.status(500).json({ ok:false, error: 'internal_error' });
+  }
+});
+
+// (Removed duplicate monkey-patch delete route; unified above)
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, ()=>{

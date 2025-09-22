@@ -3,6 +3,7 @@ import { db } from './db.js';
 // Schema
 // orgs: id TEXT PRIMARY KEY, type TEXT, name TEXT, parentId TEXT NULL
 // employees: id TEXT PRIMARY KEY, name TEXT, title TEXT, email TEXT, phone TEXT, status TEXT, orgId TEXT NULL
+// modules: id TEXT PRIMARY KEY, code TEXT, name TEXT, credits INTEGER, courseId TEXT (FK orgs.id with type=course)
 
 const ddl = `
 CREATE TABLE IF NOT EXISTS orgs (
@@ -20,6 +21,14 @@ CREATE TABLE IF NOT EXISTS employees (
   phone TEXT,
   status TEXT NOT NULL DEFAULT 'active',
   orgId TEXT
+);
+
+CREATE TABLE IF NOT EXISTS modules (
+  id TEXT PRIMARY KEY,
+  code TEXT,
+  name TEXT NOT NULL,
+  credits INTEGER DEFAULT 0,
+  courseId TEXT NOT NULL
 );
 `;
 
