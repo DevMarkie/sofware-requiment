@@ -5,12 +5,16 @@ import { sampleData, uid } from './data.js';
 import * as store from './storage.js';
 import * as org from './org.js';
 import * as emp from './employees.js';
+import * as mod from './modules.js';
 import { setActiveSortButtons, toast } from './ui.js';
 import { debounce } from './utils.js';
 
 // ---------------- State ----------------
 /** @type {{orgs:any[], employees:any[], ui:any}} */
-let state = store.load() || { ...sampleData, ui: { selectedOrgId: 'u-phenikaa', orgSearch:'', empSearch:'', empStatusFilter:'all', sortBy:'name' } };
+let state = store.load() || { ...sampleData, ui: { selectedOrgId: 'u-phenikaa', orgSearch:'', empSearch:'', empStatusFilter:'all', sortBy:'name', moduleSearch:'' } };
+// Defensive: đảm bảo mảng tồn tại để tránh lỗi khi JSON bị thiếu trường
+if (!Array.isArray(state.employees)) state.employees = [];
+if (!Array.isArray(state.modules)) state.modules = sampleData.modules || [];
 store.save(state);
 
 // --------------- Theme handling ---------------

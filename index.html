@@ -15,6 +15,7 @@
         <div class="btn-group">
           <button id="tabOrg" class="btn btn-pill active">Cơ cấu tổ chức</button>
           <button id="tabEmp" class="btn btn-pill">Quản lý nhân viên</button>
+          <button id="tabModules" class="btn btn-pill">Học phần</button>
         </div>
         <button id="btnExport" class="btn">Xuất JSON</button>
         <label class="btn btn-ghost">
@@ -126,6 +127,45 @@
       </div>
 
       <div id="empTable" class="table"></div>
+    </section>
+
+    <!-- Section: Module Manager -->
+    <section id="sectionModules" class="panel hidden">
+      <div class="panel-header row-between">
+        <h2>Học phần <span id="currentCourseLabel" class="muted small"></span></h2>
+        <div class="panel-actions row">
+          <button id="btnAddModule" class="btn">Thêm học phần</button>
+        </div>
+      </div>
+      <div class="hint small" id="moduleHint">Chọn một Môn học (type=course) trong Cơ cấu tổ chức để xem / quản lý học phần.</div>
+      <div class="toolbar row-between">
+        <div class="row gap">
+          <input id="moduleSearch" class="input" placeholder="Tìm mã / tên học phần..." />
+          <button id="btnClearModuleSearch" class="btn btn-ghost">Xoá</button>
+        </div>
+      </div>
+      <div id="moduleTable" class="table"></div>
+      <form id="moduleForm" class="form hidden" autocomplete="off">
+        <input type="hidden" id="moduleId" />
+        <div class="row">
+          <label class="field">
+            <span>Mã</span>
+            <input id="moduleCode" placeholder="VD: HCI-LT" />
+          </label>
+          <label class="field">
+            <span>Tên học phần</span>
+            <input id="moduleName" required placeholder="VD: Lý thuyết HCI" />
+          </label>
+          <label class="field">
+            <span>Tín chỉ</span>
+            <input id="moduleCredits" type="number" min="0" value="0" />
+          </label>
+        </div>
+        <div class="row-end">
+          <button type="submit" class="btn">Lưu</button>
+          <button type="button" id="btnCancelModule" class="btn btn-ghost">Huỷ</button>
+        </div>
+      </form>
     </section>
   </main>
 
