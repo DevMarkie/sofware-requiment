@@ -88,6 +88,7 @@ export function renderTree(state, onSelect){
       label = escapeHtml(label);
     }
   el.innerHTML = `<span class=\"badge gray\">${lvl}</span><span>${label}</span>`;
+    el.setAttribute('data-org-id', node.id);
     el.addEventListener('click', (e)=>{
       e.stopPropagation();
       ui.selectedOrgId = node.id;
@@ -175,8 +176,11 @@ export function addChild(state){
   const childType = parentLevel.child;
   const childName = prompt(`Nhập tên ${levelOf(childType).name} mới:`);
   if (!childName) return;
-  orgs.push({ id: uid(), type: childType, name: childName.trim(), parentId: parent.id });
+  const newNode = { id: uid(), type: childType, name: childName.trim(), parentId: parent.id };
+  orgs.push(newNode);
   save(state);
+  window.__FLASH_ORG = newNode.id;
+  // Offline mode: không đồng bộ backend
 }
 
 /** Đổi tên nút */
@@ -186,8 +190,11 @@ export function renameNode(state){
   if (!node){ alert('Chưa chọn nút.'); return; }
   const name = prompt('Tên mới:', node.name);
   if (!name) return;
+  const oldName = node.name;
   node.name = name.trim();
   save(state);
+  window.__FLASH_ORG = node.id;
+  // Offline mode: không gọi API
 }
 
 /** Xoá nút (cả cây con) + tách nhân viên ra khỏi nút đã xoá */
@@ -214,4 +221,5 @@ export function deleteNode(state){
   }
   ui.selectedOrgId = null;
   save(state);
+  // Offline mode: không gọi API
 }

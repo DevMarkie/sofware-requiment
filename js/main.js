@@ -6,16 +6,80 @@ import * as store from './storage.js';
 import * as org from './org.js';
 import * as emp from './employees.js';
 import * as mod from './modules.js';
+import * as users from './users.js';
+import * as programs from './programs.js';
+import * as tuition from './tuition.js';
 import { setActiveSortButtons, toast } from './ui.js';
 import { debounce } from './utils.js';
+// ĐÃ GỠ backend: các import api-* bị loại bỏ. Nếu cần kết nối API hãy khôi phục dòng import.
 
 // ---------------- State ----------------
-/** @type {{orgs:any[], employees:any[], ui:any}} */
-let state = store.load() || { ...sampleData, ui: { selectedOrgId: 'u-phenikaa', orgSearch:'', empSearch:'', empStatusFilter:'all', sortBy:'name', moduleSearch:'' } };
-// Defensive: đảm bảo mảng tồn tại để tránh lỗi khi JSON bị thiếu trường
-if (!Array.isArray(state.employees)) state.employees = [];
-if (!Array.isArray(state.modules)) state.modules = sampleData.modules || [];
-store.save(state);
+/** @type {{orgs:any[], employees:any[], modules:any[], users:any[], programs:any[], ui:any, tuition:any}} */
+let state = store.load() || {
+  ...sampleData,
+  ui: {
+    selectedOrgId: 'u-phenikaa',
+    orgSearch: '',
+    empSearch: '',
+    empStatusFilter: 'all',
+    sortBy: 'name',
+    moduleSearch: '',
+    userSearch: '',
+    userRoleFilter: 'all',
+    userStatusFilter: 'all',
+    programSearch: ''
+  }
+};
+
+function ensureStateDefaults(){
+  const uiDefaults = {
+    selectedOrgId: 'u-phenikaa',
+    orgSearch: '',
+    empSearch: '',
+    empStatusFilter: 'all',
+    sortBy: 'name',
+    moduleSearch: '',
+    userSearch: '',
+    userRoleFilter: 'all',
+    userStatusFilter: 'all',
+    programSearch: ''
+  };
+  state.ui = { ...uiDefaults, ...(state.ui || {}) };
+
+  if (!Array.isArray(state.orgs) || state.orgs.length === 0) state.orgs = [...sampleData.orgs];
+  if (!Array.isArray(state.employees) || state.employees.length === 0) state.employees = [...sampleData.employees];
+  if (!Array.isArray(state.modules) || state.modules.length === 0) state.modules = [...(sampleData.modules || [])];
+  if (!Array.isArray(state.users) || state.users.length === 0) state.users = [...(sampleData.users || [])];
+  if (!Array.isArray(state.programs) || state.programs.length === 0) state.programs = [...(sampleData.programs || [])];
+
+  if (!Array.isArray(state.employees)) state.employees = [];
+  if (!Array.isArray(state.modules)) state.modules = sampleData.modules || [];
+  if (!Array.isArray(state.users)) state.users = [];
+  if (!Array.isArray(state.programs)) state.programs = [];
+
+  const defaultTuition = sampleData.tuition || { theoryRate: 350000, practiceRate: 280000 };
+  if (!state.tuition || typeof state.tuition !== 'object'){
+    state.tuition = { ...defaultTuition, selectedProgramId: '' };
+  }
+  if (typeof state.tuition.theoryRate !== 'number') state.tuition.theoryRate = defaultTuition.theoryRate;
+  if (typeof state.tuition.practiceRate !== 'number') state.tuition.practiceRate = defaultTuition.practiceRate;
+  if (typeof state.tuition.quickCredits !== 'number') state.tuition.quickCredits = 0;
+  if (typeof state.tuition.quickRate !== 'number') state.tuition.quickRate = state.tuition.theoryRate;
+  if (typeof state.tuition.quickResult !== 'number') state.tuition.quickResult = 0;
+  if (!state.tuition.selectedProgramId && Array.isArray(state.programs) && state.programs.length){
+    state.tuition.selectedProgramId = state.programs[0].id;
+  }
+  if (state.tuition.selectedProgramId && Array.isArray(state.programs)){
+    const exists = state.programs.some(p => p.id === state.tuition.selectedProgramId);
+    if (!exists){
+      state.tuition.selectedProgramId = state.programs.length ? state.programs[0].id : '';
+    }
+  }
+
+  store.save(state);
+}
+
+ensureStateDefaults();
 
 // --------------- Theme handling ---------------
 const THEME_KEY = 'ui_theme_v1';
@@ -45,10 +109,14 @@ function renderAll(){
   org.renderBreadcrumb(state);
   emp.renderEmployees(state);
   mod.renderModules(state);
+  users.renderUsers(state);
+  programs.renderPrograms(state);
+  tuition.renderTuition(state);
   updateEmpFormOrgPath();
   setActiveSortButtons(state.ui.sortBy);
   updateModuleHint();
   updateCurrentCourseLabel();
+  applyFlashEffects();
 }
 function onOrgSelect(){
   renderAll();
@@ -58,6 +126,9 @@ function onOrgSelect(){
 const refreshOrg = () => { org.renderTree(state, onOrgSelect); org.renderBreadcrumb(state); mod.renderModules(state); updateModuleHint(); };
 const refreshEmp = () => { emp.renderEmployees(state); setActiveSortButtons(state.ui.sortBy); };
 const refreshModules = () => { mod.renderModules(state); updateModuleHint(); };
+const refreshUsers = () => { users.renderUsers(state); };
+const refreshPrograms = () => { programs.renderPrograms(state); tuition.renderTuition(state); };
+const refreshTuition = () => { tuition.renderTuition(state); };
 
 // --------------- Org actions ---------------
 document.getElementById('btnAddChild').addEventListener('click', ()=>{
@@ -88,7 +159,7 @@ document.getElementById('fileImport').addEventListener('change', async (e)=>{
     const data = await store.importJSON(file);
     // giữ lại ui trước đó
     state = { ...data, ui: state.ui || {} };
-    store.save(state);
+    ensureStateDefaults();
     renderAll();
     toast('Nhập dữ liệu thành công', 'ok');
   } catch (err){
@@ -101,7 +172,7 @@ document.getElementById('btnReset').addEventListener('click', ()=>{
   if (!confirm('Khôi phục dữ liệu mẫu? Dữ liệu hiện tại sẽ mất.')) return;
   store.clearAll();
   state = { ...sampleData, ui: { selectedOrgId: 'u-phenikaa', orgSearch:'', empSearch:'', empStatusFilter:'all', sortBy:'name' } };
-  store.save(state);
+  ensureStateDefaults();
   renderAll();
   toast('Đã khôi phục dữ liệu mẫu', 'ok');
 });
@@ -220,6 +291,9 @@ function updateEmpFormOrgPath(){
 
 // --------------- Module handlers ---------------
 mod.attachModuleHandlers(state);
+users.attachUserHandlers(state, { refreshUsers, refreshTuition });
+programs.attachProgramHandlers(state, { refreshPrograms, refreshTuition });
+tuition.attachTuitionHandlers(state, { refreshTuition, refreshPrograms });
 
 function updateModuleHint(){
   const hint = document.getElementById('moduleHint');
@@ -245,28 +319,49 @@ function updateCurrentCourseLabel(){
 // --------------- Initial render ---------------
 renderAll();
 
-// --------------- Tabs: Org vs Employees ---------------
+// (Đã bỏ đồng bộ backend)
+
+// --------------- Tabs: điều hướng chính ---------------
 const tabOrg = document.getElementById('tabOrg');
 const tabEmp = document.getElementById('tabEmp');
-// add dynamic button for modules tab inside header actions (simpler: reuse existing nav?)
 const tabModules = document.getElementById('tabModules');
+const tabUsers = document.getElementById('tabUsers');
+const tabPrograms = document.getElementById('tabPrograms');
+const tabTuition = document.getElementById('tabTuition');
 const sectionOrg = document.getElementById('sectionOrg');
 const sectionEmp = document.getElementById('sectionEmp');
 const sectionModules = document.getElementById('sectionModules');
+const sectionUsers = document.getElementById('sectionUsers');
+const sectionPrograms = document.getElementById('sectionPrograms');
+const sectionTuition = document.getElementById('sectionTuition');
+
+const tabConfig = {
+  org: { tab: tabOrg, section: sectionOrg },
+  emp: { tab: tabEmp, section: sectionEmp },
+  modules: { tab: tabModules, section: sectionModules },
+  users: { tab: tabUsers, section: sectionUsers },
+  programs: { tab: tabPrograms, section: sectionPrograms },
+  tuition: { tab: tabTuition, section: sectionTuition }
+};
+
 function showTab(which){
-  const isOrg = which === 'org';
-  const isEmp = which === 'emp';
-  const isMod = which === 'modules';
-  sectionOrg?.classList.toggle('hidden', !isOrg);
-  sectionEmp?.classList.toggle('hidden', !isEmp);
-  sectionModules?.classList.toggle('hidden', !isMod);
-  tabOrg?.classList.toggle('active', isOrg);
-  tabEmp?.classList.toggle('active', isEmp);
-  tabModules?.classList.toggle('active', isMod);
+  Object.entries(tabConfig).forEach(([key, cfg])=>{
+    cfg.section?.classList.toggle('hidden', key !== which);
+    cfg.tab?.classList.toggle('active', key === which);
+  });
+  if (which === 'modules') refreshModules();
+  if (which === 'users') refreshUsers();
+  if (which === 'programs') refreshPrograms();
+  if (which === 'tuition') refreshTuition();
 }
+
 tabOrg?.addEventListener('click', ()=>showTab('org'));
 tabEmp?.addEventListener('click', ()=>showTab('emp'));
-tabModules?.addEventListener('click', ()=>{ showTab('modules'); refreshModules(); });
+tabModules?.addEventListener('click', ()=>showTab('modules'));
+tabUsers?.addEventListener('click', ()=>showTab('users'));
+tabPrograms?.addEventListener('click', ()=>showTab('programs'));
+tabTuition?.addEventListener('click', ()=>showTab('tuition'));
+
 // default: show Org
 showTab('org');
 
@@ -341,3 +436,27 @@ btnClearOrgSearch?.addEventListener('click', ()=>{
   store.save(state);
   refreshOrg();
 });
+
+// --------------- Flash / Animation helpers ---------------
+function applyFlashEffects(){
+  if (window.__FLASH_ORG){
+    const el = document.querySelector(`[data-org-id="${window.__FLASH_ORG}"]`);
+    if (el){ el.classList.add('anim-flash'); setTimeout(()=>el.classList.remove('anim-flash'), 1400); }
+    delete window.__FLASH_ORG;
+  }
+  if (window.__FLASH_EMP){
+    const row = document.querySelector(`[data-emp-id="${window.__FLASH_EMP}"]`);
+    if (row){ row.classList.add('anim-pop'); setTimeout(()=>row.classList.remove('anim-pop'), 900); }
+    delete window.__FLASH_EMP;
+  }
+  if (window.__FLASH_USER){
+    const row = document.querySelector(`[data-user-id="${window.__FLASH_USER}"]`);
+    if (row){ row.classList.add('anim-pop'); setTimeout(()=>row.classList.remove('anim-pop'), 900); }
+    delete window.__FLASH_USER;
+  }
+  if (window.__FLASH_PROGRAM){
+    const row = document.querySelector(`[data-program-id="${window.__FLASH_PROGRAM}"]`);
+    if (row){ row.classList.add('anim-pop'); setTimeout(()=>row.classList.remove('anim-pop'), 900); }
+    delete window.__FLASH_PROGRAM;
+  }
+}

@@ -26,6 +26,12 @@ export interface ModuleItem {
   code?: string;
   name: string;
   credits?: number;
+  theoryCredits?: number;
+  practiceCredits?: number;
+  prerequisites?: string[];
+  corequisites?: string[];
+  previousCourses?: string[];
+  departmentId?: string | null;
   courseId: string; // references OrgNode with type = 'course'
 }
 

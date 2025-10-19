@@ -34,7 +34,7 @@ export function renderEmployees(state){
   };
 
   const rows = list.map(e => `
-    <tr>
+    <tr data-emp-id="${e.id}">
       <td><strong>${escape(e.name)}</strong><br><span class="muted small">${escape(e.email||'')}</span></td>
       <td>${escape(e.title||'')}</td>
       <td>${escape(pathOf(e.orgId))}</td>
@@ -115,6 +115,7 @@ export function filterAndSortEmployees(state, pathMap){
 export function addEmployee(state, payload){
   state.employees.push(payload);
   save(state);
+  window.__FLASH_EMP = payload.id;
 }
 
 /** Cập nhật nhân viên (tách riêng) */
@@ -123,6 +124,7 @@ export function updateEmployee(state, payload){
   if (idx>=0){
     state.employees[idx] = { ...state.employees[idx], ...payload };
     save(state);
+    window.__FLASH_EMP = payload.id;
   }
 }
 

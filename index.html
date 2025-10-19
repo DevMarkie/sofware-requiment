@@ -3,27 +3,32 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Quản lý Cơ cấu tổ chức & Nhân viên — PHENIKAA</title>
+  <title>Quản lý cơ cấu Phenikaa Uni</title>
   <link rel="stylesheet" href="styles.css" />
   
 </head>
 <body>
   <header class="app-header">
     <div class="container row-between">
-      <h1>Quản lý Cơ cấu tổ chức & Nhân viên</h1>
+  <h1>Quản lý cơ cấu Phenikaa Uni</h1>
       <nav class="actions row">
         <div class="btn-group">
           <button id="tabOrg" class="btn btn-pill active">Cơ cấu tổ chức</button>
-          <button id="tabEmp" class="btn btn-pill">Quản lý nhân viên</button>
+          <button id="tabEmp" class="btn btn-pill">Nhân sự</button>
           <button id="tabModules" class="btn btn-pill">Học phần</button>
+          <button id="tabPrograms" class="btn btn-pill">CTĐT</button>
+          <button id="tabTuition" class="btn btn-pill">Học phí</button>
+          <button id="tabUsers" class="btn btn-pill">Người dùng</button>
         </div>
-        <button id="btnExport" class="btn">Xuất JSON</button>
-        <label class="btn btn-ghost">
-          <input id="fileImport" type="file" accept=".json" hidden />
-          Nhập JSON
-        </label>
-        <button id="btnReset" class="btn btn-danger">Khôi phục dữ liệu mẫu</button>
-        <button id="themeToggle" class="btn btn-ghost" title="Đổi giao diện">🌗</button>
+        <div class="btn-group">
+          <button id="btnExport" class="btn">Xuất JSON</button>
+          <label class="btn btn-ghost">
+            <input id="fileImport" type="file" accept=".json" hidden />
+            Nhập JSON
+          </label>
+          <button id="btnReset" class="btn btn-danger">Khôi phục dữ liệu mẫu</button>
+          <button id="themeToggle" class="btn btn-ghost" title="Đổi giao diện">🌗</button>
+        </div>
       </nav>
     </div>
   </header>
@@ -157,15 +162,218 @@
             <input id="moduleName" required placeholder="VD: Lý thuyết HCI" />
           </label>
           <label class="field">
-            <span>Tín chỉ</span>
-            <input id="moduleCredits" type="number" min="0" value="0" />
+            <span>Tổng tín chỉ</span>
+            <input id="moduleCredits" type="number" min="0" value="0" placeholder="VD: 3" />
+          </label>
+        </div>
+        <div class="row">
+          <label class="field">
+            <span>Tín chỉ lý thuyết</span>
+            <input id="moduleTheoryCredits" type="number" min="0" value="0" placeholder="VD: 2" />
+          </label>
+          <label class="field">
+            <span>Tín chỉ thực hành</span>
+            <input id="modulePracticeCredits" type="number" min="0" value="0" placeholder="VD: 1" />
+          </label>
+          <label class="field">
+            <span>Khoa quản lý</span>
+            <select id="moduleDepartment"></select>
+          </label>
+        </div>
+        <div class="row">
+          <label class="field">
+            <span>HP tiên quyết</span>
+            <input id="modulePrereq" placeholder="Nhập mã, cách nhau bởi dấu phẩy" />
+          </label>
+          <label class="field">
+            <span>HP song hành</span>
+            <input id="moduleCoreq" placeholder="Nhập mã, cách nhau bởi dấu phẩy" />
+          </label>
+          <label class="field">
+            <span>HP học trước</span>
+            <input id="modulePrior" placeholder="Nhập mã, cách nhau bởi dấu phẩy" />
           </label>
         </div>
         <div class="row-end">
           <button type="submit" class="btn">Lưu</button>
           <button type="button" id="btnCancelModule" class="btn btn-ghost">Huỷ</button>
         </div>
+        <div class="form-note">Tổng tín chỉ tự động bằng tổng LT + TH nếu để trống. Nhập danh sách mã bằng dấu phẩy hoặc xuống dòng.</div>
       </form>
+    </section>
+
+    <!-- Section: User Manager -->
+    <section id="sectionUsers" class="panel hidden">
+      <div class="panel-header row-between">
+        <h2>Người dùng hệ thống</h2>
+        <div class="panel-actions">
+          <button id="btnToggleUserForm" class="btn">Thêm người dùng</button>
+        </div>
+      </div>
+
+      <form id="userForm" class="form hidden" autocomplete="off">
+        <input type="hidden" id="userId" />
+        <div class="row">
+          <label class="field">
+            <span>Tên đăng nhập</span>
+            <input id="userUsername" required placeholder="VD: admin" />
+          </label>
+          <label class="field">
+            <span>Họ và tên</span>
+            <input id="userFullName" placeholder="VD: Nguyễn Văn B" />
+          </label>
+        </div>
+        <div class="row">
+          <label class="field">
+            <span>Email</span>
+            <input id="userEmail" type="email" placeholder="ten@phenikaa-uni.edu.vn" />
+          </label>
+          <label class="field">
+            <span>Vai trò</span>
+            <select id="userRole">
+              <option value="admin">Quản trị</option>
+              <option value="academic">Học vụ</option>
+              <option value="lecturer">Giảng viên</option>
+              <option value="viewer">Xem</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Trạng thái</span>
+            <select id="userStatus">
+              <option value="active">Hoạt động</option>
+              <option value="inactive">Tạm khoá</option>
+            </select>
+          </label>
+        </div>
+        <div class="row-end">
+          <button type="submit" class="btn">Lưu</button>
+          <button type="button" id="btnCancelUser" class="btn btn-ghost">Huỷ</button>
+        </div>
+        <div class="form-note">Tài khoản dùng cho việc phân quyền và truy cập nội bộ.</div>
+      </form>
+
+      <div class="toolbar row-between">
+        <div class="row gap">
+          <input id="userSearch" class="input" placeholder="Tìm theo tên đăng nhập, họ tên, email..." />
+          <button id="btnClearUserSearch" class="btn btn-ghost">Xoá</button>
+        </div>
+        <div class="row gap">
+          <select id="userRoleFilter" class="input">
+            <option value="all">Tất cả vai trò</option>
+            <option value="admin">Quản trị</option>
+            <option value="academic">Học vụ</option>
+            <option value="lecturer">Giảng viên</option>
+            <option value="viewer">Xem</option>
+          </select>
+          <select id="userStatusFilter" class="input">
+            <option value="all">Tất cả trạng thái</option>
+            <option value="active">Hoạt động</option>
+            <option value="inactive">Tạm khoá</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="userTable" class="table"></div>
+    </section>
+
+    <!-- Section: Training Program Manager -->
+    <section id="sectionPrograms" class="panel hidden">
+      <div class="panel-header row-between">
+        <h2>Chương trình đào tạo (CTĐT)</h2>
+        <div class="panel-actions">
+          <button id="btnToggleProgramForm" class="btn">Thêm CTĐT</button>
+        </div>
+      </div>
+
+      <form id="programForm" class="form hidden" autocomplete="off">
+        <input type="hidden" id="programId" />
+        <div class="row">
+          <label class="field">
+            <span>Tên chương trình</span>
+            <input id="programName" required placeholder="VD: CTĐT KTPM 2025" />
+          </label>
+          <label class="field">
+            <span>Chuyên ngành</span>
+            <select id="programMajor"></select>
+          </label>
+          <label class="field">
+            <span>Năm học</span>
+            <input id="programYear" placeholder="VD: 2025-2026" />
+          </label>
+        </div>
+        <div class="row">
+          <label class="field">
+            <span>Danh sách học phần (mã, cách nhau bởi dấu phẩy hoặc xuống dòng)</span>
+            <textarea id="programModules" class="input" rows="3" placeholder="VD: CLOUD-LT, CLOUD-TH, HCI-LT"></textarea>
+          </label>
+        </div>
+        <div class="row-end">
+          <button type="submit" class="btn">Lưu</button>
+          <button type="button" id="btnCancelProgram" class="btn btn-ghost">Huỷ</button>
+        </div>
+        <div class="form-note">Mã học phần lấy theo danh mục ở tab Học phần. Hệ thống tự tính số tín chỉ & học phí dự kiến.</div>
+      </form>
+
+      <div class="toolbar row-between">
+        <div class="row gap">
+          <input id="programSearch" class="input" placeholder="Tìm theo tên CTĐT, năm học..." />
+          <button id="btnClearProgramSearch" class="btn btn-ghost">Xoá</button>
+        </div>
+        <div class="row gap">
+          <span id="programCount" class="muted small"></span>
+        </div>
+      </div>
+
+      <div id="programTable" class="table"></div>
+    </section>
+
+    <!-- Section: Tuition Calculator -->
+    <section id="sectionTuition" class="panel hidden">
+      <div class="panel-header row-between">
+        <h2>Tính toán học phí</h2>
+      </div>
+      <div class="grid two">
+        <div class="stack gap-s">
+          <form id="tuitionRatesForm" class="form" autocomplete="off">
+            <div class="row">
+              <label class="field">
+                <span>Chọn CTĐT</span>
+                <select id="tuitionProgramSelect"></select>
+              </label>
+            </div>
+            <div class="row">
+              <label class="field">
+                <span>Đơn giá LT (VND/tín chỉ)</span>
+                <input id="tuitionRateTheory" type="number" min="0" step="5000" />
+              </label>
+              <label class="field">
+                <span>Đơn giá TH (VND/tín chỉ)</span>
+                <input id="tuitionRatePractice" type="number" min="0" step="5000" />
+              </label>
+            </div>
+            <div class="form-note">Áp dụng mức phí cho từng học phần dựa trên tín chỉ lý thuyết / thực hành.</div>
+          </form>
+          <div id="tuitionModuleTable" class="table"></div>
+          <div class="hint" id="tuitionSummary"></div>
+        </div>
+        <form id="tuitionQuickForm" class="form" autocomplete="off">
+          <div class="row">
+            <label class="field">
+              <span>Tổng tín chỉ</span>
+              <input id="tuitionQuickCredits" type="number" min="0" step="1" />
+            </label>
+            <label class="field">
+              <span>Đơn giá / tín chỉ</span>
+              <input id="tuitionQuickRate" type="number" min="0" step="1000" />
+            </label>
+          </div>
+          <div class="row-end">
+            <button type="submit" class="btn">Tính</button>
+            <button type="button" id="btnResetQuickTuition" class="btn btn-ghost">Xoá</button>
+          </div>
+          <div class="form-note" id="tuitionQuickResult">Nhập số liệu để xem tổng học phí dự kiến.</div>
+        </form>
+      </div>
     </section>
   </main>
 
